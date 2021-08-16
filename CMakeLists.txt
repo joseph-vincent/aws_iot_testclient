@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 # note: cxx-17 requires cmake 3.8, cxx-20 requires cmake 3.12
-project(agentCpp CXX)
+project(basic_pub_sub CXX)
 
 file(GLOB SRC_FILES
        "./main.cpp"
@@ -30,7 +30,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_compile_options(${PROJECT_NAME} PRIVATE -Wno-long-long -pedantic)
 
 
-include_directories("./include")
 if(MUSL_BUILD)
     #link_directories("/x86_64-linux-musl-cross/usr/local/lib")
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/x86_64-linux-musl-cross/usr/local/lib")
@@ -40,13 +39,6 @@ else()
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/local/lib")
     include_directories("/usr/local/include")
 endif(MUSL_BUILD)
-
-#To Set Runtime library path if required
-#if(MUSL_BUILD)
-#    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,/x86_64-linux-musl-cross/usr/local/lib")
-#else()
-#    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,/usr/local/lib")
-#endif(MUSL_BUILD)
 
 set(SUPPORTING_LIBS ${SUPPORTING_LIBS}
     IotJobs-cpp
