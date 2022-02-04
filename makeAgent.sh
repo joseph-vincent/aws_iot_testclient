@@ -13,8 +13,9 @@ if [ "$MUSL_BUILD" = "ON" ] ; then
     echo "Setting MUSL Toolchain..."
     export CROSS_COMPILE_PATH=/x86_64-linux-musl-cross
     export PATH=$PATH:/x86_64-linux-musl-cross/bin
-    export CC=x86_64-linux-musl-gcc
-    export CXX=x86_64-linux-musl-g++
+    export CROSS_PREFIX=x86_64-linux-musl-
+    export CC=${CROSS_PREFIX}gcc
+    export CXX=${CROSS_PREFIX}g++
 fi
 
 read -p "Build SDK?: y/n : " ANSWER
@@ -34,6 +35,22 @@ if [ "$ANSWER" = "y" ]; then
         /usr/bin/curl -XGET https://musl.cc/x86_64-linux-musl-cross.tgz -L --output /x86_64-linux-musl-cross.tgz && \
         cd / && tar -xvzf /x86_64-linux-musl-cross.tgz && \
 	cd $APP_PATH
+    fi
+
+    read -p "Build OpenSSL Repo : y/n : " ANSWER
+    if [ "$ANSWER" = "y" ]; then
+        read -p "Clone OpenSSL Repo : y/n : " ANSWER
+        if [ "$ANSWER" = "y" ]; then
+            git clone git://git.openssl.org/openssl.git
+            cd openssl/
+            git checkout OpenSSL_1_1_1k
+        else
+            cd openssl/
+        fi
+        ./Configure linux-generic32  -DL_ENDIAN --prefix=/usr/local/ssl --openssldir=/usr/local/ssl
+        make CC=${CROSS_PREFIX}gcc RANLIB=${CROSS_PREFIX}ranlib LD=${CROSS_PREFIX}ld MAKEDEPPROG=${CROSS_PREFIX}gcc AR=${CROSS_PREFIX}ar
+        make install
+        cd $APP_PATH
     fi
 
     read -p "Clone AWS SDK Repo : y/n : " ANSWER
@@ -56,7 +73,7 @@ if [ "$ANSWER" = "y" ]; then
     cd aws-sdk-cpp-build
     echo "Building SDK... "
     echo "cmake -DCMAKE_INSTALL_PREFIX=${CROSS_COMPILE_PATH}/usr/local -DCMAKE_PREFIX_PATH=${CROSS_COMPILE_PATH}/usr/local -DBUILD_DEPS=ON -DS2N_NO_PQ_ASM=ON -DCMAKE_BUILD_TYPE=\"Release\" .. "
-    cmake -DCMAKE_INSTALL_PREFIX=${CROSS_COMPILE_PATH}/usr/local -DCMAKE_PREFIX_PATH=${CROSS_COMPILE_PATH}/usr/local -DBUILD_DEPS=ON -DS2N_NO_PQ_ASM=ON -DCMAKE_BUILD_TYPE="Release" .. 
+    cmake -DCMAKE_INSTALL_PREFIX=${CROSS_COMPILE_PATH}/usr/local -DCMAKE_PREFIX_PATH=${CROSS_COMPILE_PATH}/usr/local -DBUILD_DEPS=ON -DBYO_CRYPTO=ON -DUSE_OPENSSL=ON -DCMAKE_BUILD_TYPE="Release" .. 
     pwd; ls -l
     cmake --build . --target install 
     ln -s ${CROSS_COMPILE_PATH}/usr/local/lib64 ${CROSS_COMPILE_PATH}/usr/local/lib

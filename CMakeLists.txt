@@ -44,13 +44,14 @@ set(SUPPORTING_LIBS ${SUPPORTING_LIBS}
     IotJobs-cpp
     aws-crt-cpp aws-c-s3
     aws-c-auth aws-c-event-stream 
-    aws-c-cal aws-c-iot aws-c-mqtt aws-c-io 
-    aws-c-http aws-checksums aws-c-compression aws-c-common 
-    s2n )
+    aws-c-cal aws-c-mqtt aws-c-io 
+    aws-c-http aws-checksums aws-c-compression aws-c-common aws-c-iot)
+	#aws-c-iot s2n)
 
 if(STATIC_BUILD)
     if(MUSL_BUILD)
-        set(SUPPORTING_LIBS ${SUPPORTING_LIBS}  /x86_64-linux-musl-cross/usr/local/lib/libcrypto.a)
+        #set(SUPPORTING_LIBS ${SUPPORTING_LIBS}  /x86_64-linux-musl-cross/usr/local/lib/libcrypto.a)
+        set(SUPPORTING_LIBS ${SUPPORTING_LIBS}  /usr/local/ssl/lib/libcrypto.a)
     else()
         set(SUPPORTING_LIBS ${SUPPORTING_LIBS}  /usr/local/lib/libcrypto.a)
     endif(MUSL_BUILD)
